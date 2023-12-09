@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>MyFridge</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        img {
+            width: 50px;
+        }
+
+        body {
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+
+            background-position: center;
+            /* Center the background image */
+
+        }
+
+
+
+        #load {
+            position: fixed;
+            display: block;
+
+            cursor: wait;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+        <a style="width:15%;min-width:250px;" class="navbar-brand" href="/search?search="> &nbsp;&nbsp; Manage MyFridge</a>
+        <div style="width:60%">
+            <form class='form-inline' id="myForm" action="/search" method="GET" class="form-inline">
+                <nav class="navbar" style="margin: 2%;">
+                    <input type="search" name="search" placeholder="Search Ingredients..." class="form-control mr-sm-2"
+                        style="width: 80%;display: inline-block;">
+                    <input type="submit" value="Search" class="btn btn-primary my-2 my-sm-0"
+                        style="width: 18%;display: inline-block; height: 100%;">
+
+                </nav>
+            </form>
+        </div>
+        <!-- <a href='/logOut' class="btn btn-secondary my-2 my-sm-0 form-inline"
+            style='width:12%;min-width: 100px;'>download json</a> -->
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <nav id="flashMessages" class="navbar" style="margin: 2%;">
+        <ul class=flashes style="width:100%;">
+            {% for category, message in messages %}
+            <!-- <div class="alert " role="alert"> -->
+            <div class="alert {{category}} alert-dismissible" role="alert">
+                <p>{{ message}}</p>
+            </div>
+            {% endfor %}
+        </ul>
+    </nav>
+
+
+    {% endif %}
+    {% endwith %}
+
+
+
+    <form method="post" enctype="multipart/form-data">
+        <nav class="navbar" style="margin: 2%;">
+            <input type="submit" value="Temp Button" class="btn btn-primary my-2 my-sm-0"
+                style="width: 49%;display: inline-block; height: 100%;" onclick="loading();">
+            <button class="btn btn-primary" style="width: 49%;text-align: center;display: inline-block; height: 100%;"
+                onclick="location.href='/upload'" type="button">
+                Upload New Ingredients</button>
+        </nav>
+
+        <div class="table2" style="width: 100%; display: block;">
+            <table class="table" style="width:100%; text-align: center;">
+                <thead>
+                    <tr>
+                        <th scope="col">Ingredient</th>
+                        <th scope="col">Unit</th>
+                        <th scope="col">Calories per Unit</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for i in ingredient %}
+                    <tr>
+
+                        <td>{{i['name']}}</td>
+                        <td>{{i['unit']}}</td>
+                        <td>{{i['calories']}}</td>
+                        <td>{{i['quantity']}}</td>
+
+                        <td>
+                            <form method="post" enctype="multipart/form-data">
+                                <input class="form-control" type=submit name="{{i['name']}}" value="delete">
+                            </form>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </form>
+
+
+    <script type="text/javascript">
+        $(document).done("click", "#delete", function () {
+            $(this).parents("tr").remove();
+            $(".convert").removeAttr("disabled");
+        });
+
+
+    </script>
+    <script src="" async defer></script>
+    <script type="text/javascript">
+        function checkForAlerts() {
+            const alerts = document.querySelectorAll('#flashMessages');
+
+            if (alerts.length > 0) {
+                // If .alert elements exist, execute the fadeOut logic
+                $('#flashMessages').fadeOut('slow');
+            }
+        }
+
+        // Check for .alert elements every 2 seconds (2000 milliseconds)
+        const intervalId = setInterval(checkForAlerts, 5000);
+        function loading() {
+            document.body.style.background = 'linear-gradient(0deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url("static/loadingimage.gif")';
+            document.body.style.backgroundRepeat = 'no-repeat'; // Wrap in single quotes
+            document.body.style.backgroundAttachment = 'fixed'; // Wrap in single quotes
+            document.body.style.backgroundSize = 'cover'; // Wrap in single quotes
+            document.body.style.backgroundSize = '150px 150px'; // Set the background size to 100x100 pixels
+            document.body.style.backgroundPosition = 'center'; // Center the background image
+
+        }
+    </script>
+    <!-- </div> -->
+
+</body>
+
+</html>
