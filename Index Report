@@ -1,0 +1,27 @@
+Indexes available:
+db.Index('idx_name_unit', Ingredient.name, Ingredient.unit)
+Specific Queries that benefit:
+order by name, unit - SELECT * FROM (SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern})  ORDER BY {[name, unit]}
+
+db.Index('idx_name', Ingredient.name)
+Specific Queries that benefit:
+order by name - SELECT * FROM (SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern})  ORDER BY {[name]}
+order by name - Ingredient.query.filter_by(name=request.form['name']).first()
+order by name - Ingredient.query.filter(Ingredient.name.ilike(f"%{ingredient_search}%")).all()
+
+db.Index('idx_unit', Ingredient.unit)
+Specific Queries that benefit:
+order by unit - SELECT * FROM (SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern})  ORDER BY {[unit]}
+
+db.Index('idx_quantity', Ingredient.quantity)
+Specific Queries that benefit:
+order by quantity - SELECT * FROM (SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern})  ORDER BY {[quantity]}
+filter for quantity != 0 to show in stock items - SELECT * FROM (SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern})  ORDER BY {[quantity]} WHERE quantity > 0
+
+
+db.Index('idx_calories', Ingredient.calories)
+Specific Queries that benefit:
+order by calories - SELECT * FROM (SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern})  ORDER BY {[calories]}
+
+
+These are the indexes I used. I chose to index on any of the filtering options so that the reports would generate faster. I also picked the composite key of name, unit as well as individual keys because I think those are the keys that users will want to generate reports on the most frequently. There are cases where a user could order by every option, but I imagine those are much more unlikely and the efficiency benefit might not outweigh the cons of having so many indexes.

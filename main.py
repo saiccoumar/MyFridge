@@ -57,6 +57,15 @@ class Ingredient(db.Model):
     def delete(cls, ingredient_id):
         ingredient = cls.query.get(ingredient_id)
         if ingredient:
+            recipes_using_ingredient = Recipe.query.join(
+                RecipeIngredient, Recipe.id == RecipeIngredient.recipe_id
+            ).filter(RecipeIngredient.ingredient_id == ingredient.id).all()
+
+            RecipeIngredient.query.filter_by(ingredient_id=ingredient.id).delete()
+
+            for recipe in recipes_using_ingredient:
+                Recipe.delete(recipe.id)
+
             db.session.delete(ingredient)
             db.session.commit()
 
@@ -358,7 +367,7 @@ def restock_submit():
 
                 ingredient = Ingredient.get_by_id(ingredient_id)
                 if ingredient:
-                    ingredient.quantity += restock_quantity
+                    ingredient.quantity += restock_quantity # Update
                     db.session.commit()
 
         session.clear()
@@ -408,7 +417,7 @@ def upload():
         if ingredient['quantity'] < 0:
             ingredient['quantity'] = 0
         Ingredient.create(name=ingredient['name'], quantity=ingredient['quantity'],
-                          unit=ingredient['unit'], calories=ingredient['calories'])
+                          unit=ingredient['unit'], calories=ingredient['calories']) # Insert
 
         flash('Ingredient uploaded', 'alert-primary')
         return render_template("upload.html")
@@ -427,7 +436,7 @@ def update_quantity(ingredient_id):
 @app.route('/delete/<int:ingredient_id>', methods=['POST'])
 def delete(ingredient_id):
     if request.method == 'POST':
-        Ingredient.delete(ingredient_id)
+        Ingredient.delete(ingredient_id) # Delete
         flash('Ingredient deleted', 'alert-danger')
         return redirect(request.referrer or '/search?search=')
     
