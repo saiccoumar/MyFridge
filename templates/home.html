@@ -40,7 +40,7 @@
         <a style="width:15%;min-width:250px;" class="navbar-brand" href="/search?search="> &nbsp;&nbsp; Manage MyFridge</a>
         <form method="GET" action="/search" class="form-inline" style="width: 60%; margin-left: 2%;">
             <input type="search" name="search" placeholder="Search Ingredients..." class="form-control mr-sm-2"
-                style="width: 80%; display: inline-block; color: white;">
+                style="width: 80%; display: inline-block; color: black;">
             <button type="submit" class="btn btn-primary my-2 my-sm-0"
                 style="width: 18%; display: inline-block; height: 100%;">Search</button>
     
@@ -63,6 +63,12 @@
                 <input type="checkbox" class="form-check-input" id="orderByUnit" name="orderBy" value="unit">
                 <label class="form-check-label" for="orderByUnit" style="color: white;">Order by Unit</label>
             </div>
+
+            <div class="form-check form-check-inline" style="margin-inline:5%">
+                <input type="checkbox" class="form-check-input" id="showOutOfStock" name="showOutOfStock">
+                <label class="form-check-label" for="showOutOfStock" style="color: white;">Show Out of Stock</label>
+            </div>
+        
         </form>
     </nav>
     

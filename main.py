@@ -108,6 +108,10 @@ class RecipeIngredient(db.Model):
 with app.app_context():
     db.create_all()
     db.Index('idx_name_unit', Ingredient.name, Ingredient.unit)
+    db.Index('idx_name', Ingredient.name)
+    db.Index('idx_unit', Ingredient.unit)
+    db.Index('idx_quantity', Ingredient.quantity)
+    db.Index('idx_calories', Ingredient.calories)
 
     
 
@@ -488,6 +492,7 @@ def search():
     if request.method == 'GET':
         v = request.args.get('search', '')
         order_by = request.args.get('orderBy', 'name')
+        show_out_of_stock = request.args.get('showOutOfStock')
 
         if re.search('[a-zA-Z]', v):
             if len(Ingredient.query.all()) < 1:
@@ -495,8 +500,12 @@ def search():
 
             # Use prepared statement with raw SQL for the initial search
             pattern = f"\"%{v.lower()}%\""
-            sql_query = text(f"SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern}")
-            result = db.session.execute(sql_query)
+            out_clause = ""
+            if not show_out_of_stock:
+                    # Filter out items with quantity = 0 if showOutOfStock is set to false
+                out_clause= " AND quantity > 0"
+            statement = text(f"SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern}  ")
+            result = db.session.execute(statement)
 
             # Create a temporary table for the initial search results
             temp_table_name = 'temp_table'
@@ -504,7 +513,8 @@ def search():
             # Check if the temporary table exists before creating it
             if not db.session.execute(text(f"SELECT name FROM sqlite_temp_master WHERE type='table' AND name='{temp_table_name}'")).scalar():
                 result.fetchall()  # Ensure the result is fetched
-                db.session.execute(text(f"CREATE TEMPORARY TABLE {temp_table_name} AS {sql_query}"))
+                
+                db.session.execute(text(f"CREATE TEMPORARY TABLE {temp_table_name} AS {statement} {out_clause}"))
 
         else:
             # Use prepared statement with raw SQL for the default search
@@ -513,7 +523,11 @@ def search():
             
             # Check if the temporary table exists before creating it
             if not db.session.execute(text(f"SELECT name FROM sqlite_temp_master WHERE type='table' AND name='{temp_table_name}'")).scalar():
-                db.session.execute(text(f"CREATE TEMPORARY TABLE {temp_table_name} AS {statement}"))
+                out_clause = ""
+                if not show_out_of_stock:
+                    # Filter out items with quantity = 0 if showOutOfStock is set to false
+                    out_clause= " WHERE quantity > 0"
+                db.session.execute(text(f"CREATE TEMPORARY TABLE {temp_table_name} AS {statement} {out_clause}"))
 
         # Use raw SQL prepared statements to execute ordered queries on the specified temporary table
         if order_by in ['name', 'calories', 'quantity', 'unit']:
