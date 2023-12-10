@@ -14,19 +14,19 @@ app.secret_key = "super secret key"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
 
+# Ingredient Instantiation via ORM
 class Ingredient(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)  # Change data type to Integer
+    quantity = db.Column(db.Integer, nullable=False) 
     unit = db.Column(db.String(20), nullable=False)
-    calories = db.Column(db.Integer, nullable=False)  # Change data type to Integer
+    calories = db.Column(db.Integer, nullable=False)  
 
     recipes = db.relationship('RecipeIngredient', back_populates='ingredient')
 
     @classmethod
     def create(cls, name, quantity, unit, calories):
         try:
-            # Try to convert quantity and calories to integers
             quantity = int(quantity)
             calories = int(calories)
         except ValueError:
@@ -74,7 +74,7 @@ class Ingredient(db.Model):
     
 
 
-
+# Recipe Instantiation via ORM
 class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -89,13 +89,12 @@ class Recipe(db.Model):
     def delete(cls, recipe_id):
         recipe = cls.query.get(recipe_id)
         if recipe:
-            # Delete all associated RecipeIngredients
             RecipeIngredient.query.filter_by(recipe_id=recipe.id).delete()
 
-            # Now, delete the recipe itself
             db.session.delete(recipe)
             db.session.commit()
 
+# Recipe Instantiation via ORM
 class RecipeIngredient(db.Model):
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), primary_key=True)
     ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id'), primary_key=True)
@@ -107,6 +106,7 @@ class RecipeIngredient(db.Model):
 
 with app.app_context():
     db.create_all()
+    # Create Indexes for filtering data
     db.Index('idx_name_unit', Ingredient.name, Ingredient.unit)
     db.Index('idx_name', Ingredient.name)
     db.Index('idx_unit', Ingredient.unit)
@@ -114,12 +114,12 @@ with app.app_context():
     db.Index('idx_calories', Ingredient.calories)
 
     
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    
+    # Home route
     return redirect('/search?search=')
 
+# Recipe Route
 @app.route('/recipes/view/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
     recipe = Recipe.query.get(recipe_id)
@@ -134,18 +134,14 @@ def view_recipe(recipe_id):
             quantity_required = recipe_ingredient.quantity_required
 
             if ingredient.quantity < quantity_required:
-                # Not enough quantity of an ingredient
                 return False, f"Not enough {ingredient.name} to use this recipe"
 
-            # Update the quantity in the database
             ingredient.quantity -= quantity_required
             db.session.commit()
 
-        # If all ingredients are available, return success
         return True, "Recipe used successfully"
 
     if request.method == 'POST':
-        # Handle recipe consumption logic here
         success, message = consume_recipe(recipe)
         if success:
             flash('Recipe used successfully', 'alert-success')
@@ -160,14 +156,11 @@ def view_recipe(recipe_id):
 
 @app.route('/recipes/search', methods=['GET'])
 def recipes_search():
-    # Get the search criteria from the query parameters
     search_query = request.args.get('search', '').strip()
 
-    # Retrieve all recipes if no search query is provided
     if not search_query:
         recipes = Recipe.query.all()
     else:
-        # Filter recipes based on the search query (modify as needed)
         recipes = Recipe.query.filter(
             Recipe.name.ilike(f"%{search_query}%") |
             Recipe.diet_type.ilike(f"%{search_query}%") |
@@ -186,7 +179,6 @@ def recipe_delete(recipe_id):
 
 @app.route('/recipes/upload/search', methods=['GET', 'POST'])
 def add_recipe_search():
-    # Handle ingredient search
     ingredient_search = request.args.get('ingredientSearch', '').strip()
 
     if 'selected_ingredients' not in session:
@@ -196,10 +188,9 @@ def add_recipe_search():
     selected_ingredients = session['selected_ingredients']
 
     if ingredient_search:
-        # Perform ingredient search based on your criteria
+        # Example of ORM call
         search_results = Ingredient.query.filter(Ingredient.name.ilike(f"%{ingredient_search}%")).all()
 
-    # Handle adding selected ingredients to the recipe
     for result in search_results:
         quantity_key = f'recipe_ingredient_{result.id}'
         quantity_required = request.args.get(quantity_key)
@@ -214,29 +205,22 @@ def add_recipe_search():
 
     if request.method == 'POST':
         ingredient_id = int(request.form.get('ingredient_id'))
-
-        # Get the selected ingredient
+# Example of ORM call
         selected_ingredient = Ingredient.get_by_id(ingredient_id)
 
-        # Convert the array to a dictionary for efficient lookup
         selected_ingredients_dict = {item['id']: item for item in selected_ingredients}
 
-        # Check if the ingredient is already in the dictionary
         existing_ingredient = selected_ingredients_dict.get(selected_ingredient.id)
 
-        # If the ingredient is not in the dictionary, add it
         if not existing_ingredient:
-            # Add selected ingredient to the dictionary
             selected_ingredients_dict[selected_ingredient.id] = {
                 'id': selected_ingredient.id,
                 'name': selected_ingredient.name,
                 'quantity_required': 1 
             }
 
-# Convert the dictionary back to an array
         selected_ingredients = list(selected_ingredients_dict.values())
 
-    # Update session
     session['selected_ingredients'] = selected_ingredients
 
     return render_template('add_recipe.html', search_results=search_results, selected_ingredients=selected_ingredients)
@@ -247,25 +231,21 @@ def add_recipe_delete(ingredient_id):
         selected_ingredients = session['selected_ingredients']
         session['selected_ingredients'] = [i for i in selected_ingredients if i['id'] != ingredient_id]
 
-        # Create a response to clear the cookie
         response = make_response(redirect(url_for('add_recipe_search')))
         response.delete_cookie(f'recipe_ingredient_{ingredient_id}')
 
         return response
 
-    # Redirect back to the add recipe page
     return redirect(url_for('add_recipe_search'))
 
 @app.route('/recipes/upload/submit', methods=['POST'])
 def add_recipe_submit():
     if request.method == 'POST':
-        # Get recipe details from the form
         name = request.form.get('recipe_name')
         diet_type = request.form.get('diet_type')
         cuisine = request.form.get('cuisine')
         text = request.form.get('text')
 
-        # Create a new recipe
         new_recipe = Recipe(
             name=name,
             diet_type=diet_type,
@@ -277,14 +257,12 @@ def add_recipe_submit():
         db.session.add(new_recipe)
         db.session.commit()
 
-        # Handle updating quantities based on the form data
         total_calories = 0
         for key, value in request.form.items():
             if key.startswith('recipe_ingredient_') and value.isdigit():
                 ingredient_id = int(key.split('_')[2])
                 quantity_required = int(value)
 
-                # Update the quantity in the database or create a new record
                 recipe_ingredient = RecipeIngredient(
                     recipe_id=new_recipe.id,
                     ingredient_id=ingredient_id,
@@ -293,27 +271,22 @@ def add_recipe_submit():
                 db.session.add(recipe_ingredient)
                 db.session.commit()
 
-                # Calculate total calories
                 ingredient = Ingredient.query.get(ingredient_id)
                 if ingredient:
                     total_calories += quantity_required * ingredient.calories
 
-        # Update the total calories in the recipe
         new_recipe.total_calories = total_calories
         db.session.commit()
 
-        # Clear session cookies
         session.clear()
 
-        # Redirect back to the recipe search page
         return redirect('/recipes/search')
 
 
 
-
+# Restock routes
 @app.route('/restock/search', methods=['GET', 'POST', 'DELETE'])
 def restock_search():
-    # Handle ingredient search
     ingredient_search = request.args.get('ingredientSearch', '').strip()
 
     if 'selected_ingredients' not in session:
@@ -323,10 +296,8 @@ def restock_search():
     selected_ingredients = session['selected_ingredients']
 
     if ingredient_search:
-        # Perform ingredient search based on your criteria
         search_results = Ingredient.query.filter(Ingredient.name.ilike(f"%{ingredient_search}%")).all()
 
-    # Handle adding selected ingredients to the restock list
     for result in search_results:
         quantity_key = f'restock_{result.id}'
         restock_quantity = request.args.get(quantity_key)
@@ -342,32 +313,24 @@ def restock_search():
     if request.method == 'POST':
         ingredient_id = int(request.form.get('ingredient_id'))
 
-        # Query the information for the selected ingredient
-        # Get the selected ingredient
         selected_ingredient = Ingredient.get_by_id(ingredient_id)
 
-        # Convert the array to a dictionary for efficient lookup
         selected_ingredients_dict = {item['id']: item for item in selected_ingredients}
 
-        # Check if the ingredient is already in the dictionary
         existing_ingredient = selected_ingredients_dict.get(selected_ingredient.id)
 
-        # If the ingredient is not in the dictionary, add it
         if not existing_ingredient:
-    # Add selected ingredient to the dictionary
             selected_ingredients_dict[selected_ingredient.id] = {
                 'id': selected_ingredient.id,
                 'name': selected_ingredient.name,
-                'quantity_required': 1  # You can set a default quantity here
+                'quantity_required': 1
             }
 
-# Convert the dictionary back to an array
         selected_ingredients = list(selected_ingredients_dict.values())
 
 
     
 
-    # Update session
     session['selected_ingredients'] = selected_ingredients
 
     return render_template('restock.html', search_results=search_results, selected_ingredients=selected_ingredients)
@@ -378,34 +341,28 @@ def restock_delete(ingredient_id):
         selected_ingredients = session['selected_ingredients']
         session['selected_ingredients'] = [i for i in selected_ingredients if i['id'] != ingredient_id]
 
-        # Create a response to clear the cookie
         response = make_response(redirect(url_for('restock_search')))
         response.delete_cookie(f'restock_{ingredient_id}')
 
         return response
 
-    # Redirect back to the restock page
     return redirect(url_for('restock_search'))
 
 @app.route('/restock/submit', methods=['POST'])
 def restock_submit():
     if request.method == 'POST':
-        # Handle updating quantities based on the form data
         for key, value in request.form.items():
             if key.startswith('restock_') and value.isdigit():
                 ingredient_id = int(key.split('_')[1])
                 restock_quantity = int(value)
 
-                # Update the quantity in the database
                 ingredient = Ingredient.get_by_id(ingredient_id)
                 if ingredient:
                     ingredient.quantity += restock_quantity
                     db.session.commit()
 
-        # Clear session cookies
         session.clear()
 
-        # Redirect back to the restock page
         return redirect('/')
 
 
@@ -442,7 +399,6 @@ def upload():
         ingredient['calories'] = request.form['calories']
 
         try:
-            # Try to convert quantity and calories to integers
             ingredient['quantity'] = int(ingredient['quantity'])
             ingredient['calories'] = int(ingredient['calories'])
         except ValueError:
@@ -477,13 +433,13 @@ def delete(ingredient_id):
     
 
 
-    # Redirect back to the referring page (or to /search if no referring page)
     
 
 from flask import render_template, request, redirect
 from sqlalchemy import text
 import re
 
+# Home routes
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     data = {}
@@ -498,49 +454,37 @@ def search():
             if len(Ingredient.query.all()) < 1:
                 return render_template('home.html', ingredient={})
 
-            # Use prepared statement with raw SQL for the initial search
             pattern = f"\"%{v.lower()}%\""
             out_clause = ""
             if not show_out_of_stock:
-                    # Filter out items with quantity = 0 if showOutOfStock is set to false
                 out_clause= " AND quantity > 0"
             statement = text(f"SELECT * FROM ingredient WHERE LOWER(ingredient.name) LIKE {pattern}  ")
             result = db.session.execute(statement)
 
-            # Create a temporary table for the initial search results
             temp_table_name = 'temp_table'
             
-            # Check if the temporary table exists before creating it
             if not db.session.execute(text(f"SELECT name FROM sqlite_temp_master WHERE type='table' AND name='{temp_table_name}'")).scalar():
-                result.fetchall()  # Ensure the result is fetched
-                
+                result.fetchall()
+                # Raw SQL via prepared statements
                 db.session.execute(text(f"CREATE TEMPORARY TABLE {temp_table_name} AS {statement} {out_clause}"))
 
         else:
-            # Use prepared statement with raw SQL for the default search
             statement = text("SELECT * FROM ingredient")
             temp_table_name = 'temp_table'
             
-            # Check if the temporary table exists before creating it
             if not db.session.execute(text(f"SELECT name FROM sqlite_temp_master WHERE type='table' AND name='{temp_table_name}'")).scalar():
                 out_clause = ""
                 if not show_out_of_stock:
-                    # Filter out items with quantity = 0 if showOutOfStock is set to false
                     out_clause= " WHERE quantity > 0"
                 db.session.execute(text(f"CREATE TEMPORARY TABLE {temp_table_name} AS {statement} {out_clause}"))
 
-        # Use raw SQL prepared statements to execute ordered queries on the specified temporary table
         if order_by in ['name', 'calories', 'quantity', 'unit']:
-            # Define the dynamic ordering using SQLAlchemy's text construct
             order_sql = text(f"SELECT * FROM {temp_table_name} ORDER BY {order_by}")
 
-            # Execute the prepared statement
             result = db.session.execute(order_sql)
 
-            # Get the ordered data
             ingredients = result.fetchall()
 
-            # Drop the temporary table after the order by query
             db.session.execute(text(f"DROP TABLE IF EXISTS {temp_table_name}"))
 
     if request.method == 'POST':

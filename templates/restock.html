@@ -38,7 +38,6 @@
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
 
-        <!-- Display search results -->
         {% if search_results %}
         <h2>Search Results</h2>
         <form method="post" action="{{ url_for('restock_search') }}">
@@ -64,7 +63,6 @@
         </form>
         {% endif %}
 
-        <!-- Display selected ingredients for restocking -->
         <h2>Selected Ingredients</h2>
         <form method="post" action="{{ url_for('restock_submit') }}">
             <table class="table" style="width:100%; text-align: center;">
@@ -72,7 +70,7 @@
                     <tr>
                         <th scope="col">Ingredient</th>
                         <th scope="col">Quantity to Restock</th>
-                        <th scope="col">Actions</th> <!-- New column for the Delete button -->
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
