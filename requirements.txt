@@ -1,0 +1,5 @@
+moviepy==1.0.3
+Flask==1.1.2
+Pillow==8.2.0
+zipf==1.6.0
+gunicorn==20.1.0
