@@ -43,7 +43,8 @@
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
-        <a style="width:15%;min-width:250px;" class="navbar-brand" href="/search?search="> &nbsp;&nbsp; Manage MyFridge</a>
+        <a style="width:15%;min-width:250px;" class="navbar-brand" href="/search?search="> &nbsp;&nbsp; Manage
+            MyFridge</a>
         <div style="width:60%">
             <form class='form-inline' id="myForm" action="/search" method="GET" class="form-inline">
                 <nav class="navbar" style="margin: 2%;">
@@ -79,53 +80,66 @@
 
 
     <form method="post" enctype="multipart/form-data">
-        <nav class="navbar" style="margin: 2%;">
-            <input type="submit" value="Temp Button" class="btn btn-primary my-2 my-sm-0"
-                style="width: 49%;display: inline-block; height: 100%;" onclick="loading();">
-            <button class="btn btn-primary" style="width: 49%;text-align: center;display: inline-block; height: 100%;"
+        <a href="/restock/search" class="btn btn-primary my-2 my-sm-0"
+           style="width: 30%; display: inline-block; height: 100%; margin: 1%;">Restock</a>
+    
+        <button class="btn btn-primary"
+                style="width: 30%; text-align: center; display: inline-block; height: 100%; margin: 1%;"
                 onclick="location.href='/upload'" type="button">
-                Upload New Ingredients</button>
-        </nav>
-
-        <div class="table2" style="width: 100%; display: block;">
-            <table class="table" style="width:100%; text-align: center;">
-                <thead>
-                    <tr>
-                        <th scope="col">Ingredient</th>
-                        <th scope="col">Unit</th>
-                        <th scope="col">Calories per Unit</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% for i in ingredient %}
-                    <tr>
-
-                        <td>{{i['name']}}</td>
-                        <td>{{i['unit']}}</td>
-                        <td>{{i['calories']}}</td>
-                        <td>{{i['quantity']}}</td>
-
-                        <td>
-                            <form method="post" action="{{ url_for('delete', ingredient_id=i['id']) }}">
-                                <button type="submit">Delete</button>
-                            </form>
-                            
-                            
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-
-                </tbody>
-            </table>
-
-        </div>
-
+            Upload New Ingredients
+        </button>
+    
+        <a href="/recipes/search" class="btn btn-primary my-2 my-sm-0"
+           style="width: 30%; display: inline-block; height: 100%; margin: 1%;">View Recipes</a>
     </form>
+    
+
+
+    <div class="table2" style="width: 100%; display: block;">
+        <table class="table" style="width:100%; text-align: center;">
+            <thead>
+                <tr>
+                    <th scope="col">Ingredient</th>
+                    <th scope="col">Unit</th>
+                    <th scope="col">Calories per Unit</th>
+                    <th scope="col">+</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">-</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for i in ingredient %}
+                <tr>
+                    <td>{{i['name']}}</td>
+                    <td>{{i['unit']}}</td>
+                    <td>{{i['calories']}}</td>
+                    <td>
+
+                        <form method="post" action="/update_quantity/{{i['id']}}?action=increase">
+                            <button type="submit">+</button>
+                        </form>
+                    </td>
+                    <td>{{i['quantity']}}</td>
+                    <td>
+                        <form method="post" action="/update_quantity/{{i['id']}}?action=decrease">
+                            <button type="submit">-</button>
+                        </form>
+
+                    </td>
+                    <td>
+                        <form method="post" action="/delete/{{i['id']}}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
 
 
     <script type="text/javascript">
