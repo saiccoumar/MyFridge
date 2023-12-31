@@ -12,10 +12,10 @@ Sections: <br />
 [Development Process and Design Notes](#development-process)<br />
 [Takeaways](#takeaways)<br />
 
-# Introduction:
+# Introduction
 Welcome to my course project for information systems! This is a SQLLite Food Inventory system built with python, flask, sqlalchemy, and basic html for the UI. I'll cover the usage, features, and some takeaways from this project. I'll also be covering some of the tools used to build this in depth and notes from the design process. Note that some of the data I used wasn't very accurate so some things don't make sense. Like a pizza with 17,000 calories.
 
-# Usage:
+# Usage
 To run the application, run the following command from the main directory
 ```
 python main.py
@@ -26,7 +26,7 @@ The following webpage will be opened in your default web browser.
 
 From here you can navigate the application with the UI
 
-# Features:
+# Features
 MyFridge has several features. The main functionality is being able to add custom ingredients to the inventory, as well as relevant information (Ingredient, Unit, Calories per Unit, Quantity). Relevant information about calories and units can be found from food health websites, like https://www.nutritionix.com/  
 ![image](https://github.com/saiccoumar/MyFridge/assets/55699636/1834f2b6-b560-4c97-aadb-cacb544e0ea0)
 
