@@ -5,12 +5,7 @@
 </p>
 by Sai Coumar
 <br />
-Sections: <br />
-[Introduction](#introduction) <br />
-[Usage](#usage)<br />
-[Features of MyFridge](#features)<br />
-[Development Process and Design Notes](#development-process)<br />
-[Takeaways](#takeaways)<br />
+
 
 # Introduction
 Welcome to my course project for information systems! This is a SQLLite Food Inventory system built with python, flask, sqlalchemy, and basic html for the UI. I'll cover the usage, features, and some takeaways from this project. I'll also be covering some of the tools used to build this in depth and notes from the design process. Note that some of the data I used wasn't very accurate so some things don't make sense. Like a pizza with 17,000 calories.
