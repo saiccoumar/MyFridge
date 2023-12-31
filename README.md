@@ -1,12 +1,12 @@
 # MyFridge: A SQLite Based Food Inventory System
 <p align="center">
   <img width="100%" height="auto" src="https://github.com/saiccoumar/MyFridge/assets/55699636/146d1d3e-d902-423c-9fb8-5fa96dedfa5e">
-<em> https://www.pinterest.com/triviastar </em>
+  <em> https://www.pinterest.com/triviastar </em>
 </p>
 by Sai Coumar
 <br />
 Sections: <br />
-[Introduction](#introduction)<br />
+[Introduction](#introduction) <br />
 [Usage](#usage)<br />
 [Features of MyFridge](#features)<br />
 [Development Process and Design Notes](#development-process)<br />
