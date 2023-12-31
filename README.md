@@ -3,9 +3,14 @@
   <img width="100%" height="auto" src="https://github.com/saiccoumar/MyFridge/assets/55699636/146d1d3e-d902-423c-9fb8-5fa96dedfa5e">
 <em> https://www.pinterest.com/triviastar </em>
 </p>
-
-# Sections:
-
+by Sai Coumar
+<br />
+Sections: <br />
+[Introduction](#introduction)<br />
+[Usage](#usage)<br />
+[Features of MyFridge](#features)<br />
+[Development Process and Design Notes](#development-process)<br />
+[Takeaways](#takeaways)<br />
 
 # Introduction:
 Welcome to my course project for information systems! This is a SQLLite Food Inventory system built with python, flask, sqlalchemy, and basic html for the UI. I'll cover the usage, features, and some takeaways from this project. I'll also be covering some of the tools used to build this in depth and notes from the design process. Note that some of the data I used wasn't very accurate so some things don't make sense. Like a pizza with 17,000 calories.
@@ -114,3 +119,4 @@ During the development of this project, there were a lot of recurring ideas that
 1. SQLite and relational databases are absurdly valuable; having a structure made modifying data and synchronizing record consistency extremely simple. Prior to this, I had always preferred JSON format because of how flexible it was (and how little effort I put into data structure), but structured data with predefined schemas helps make transactions easier to track and enforced ACID properites make transactions reliable. This whole application would've been much messier had I used non-relational JSON formatted data instead and I saved myself a huge headache using SQLite instead
 2. Flask/HTML is getting old. My design sucks and just looking at some ways I could improve it, it became very clear just how much more prevalent Javascript frameworks have become in creating UIs. A lot can change in a few years
 3. Routing can get extremely complex along the way. In my main.py, I have 14 routes, some of which are subroutes. A lot of this can be refactored to be more readable and I wish I had planned that ahead of time instead of cluttering up my code. In a production application, I would've separated recipes into it's own API that the MyFridge would redirect to rather than take a monolothic approach. 
+
